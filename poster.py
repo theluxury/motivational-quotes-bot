@@ -9,6 +9,8 @@ import os
 from wand.image import Image
 from wand.font import Font
 from wand.color import Color
+from wand.drawing import Drawing
+import time
 
 
 def connect():
@@ -32,6 +34,7 @@ class Poster:
         resp = requests.get(url=url)
         data = json.loads(resp.content.replace("\\", "").replace('\r\n', ''))
         quote = data["quoteText"].strip()
+        print quote
         return quote
 
     def save_image(self, url, name):
@@ -63,10 +66,29 @@ class Poster:
             i.crop(width=desired_width, height=desired_height)
             i.save(filename=name)
 
+    def filter_quote(self, quote):
+        chunks = quote.split()
+        quote_dict = {}
+        if len(chunks) > 6:
+            quote_dict["first"] = " ".join(chunks[:(len(chunks) / 2) - 1])
+            quote_dict["second"] = " ".join(chunks[(len(chunks) / 2) - 1:])
+        else:
+            quote_dict["first"] = quote
+        return quote_dict
+
     def add_caption(self, name, quote):
-        font = Font(path="impact.ttf", size=64, color=Color("white"))
+        color = Color("white")
+        draw = Drawing()
+        draw.fill_color = Color("black")
+        font = Font(path="impact.ttf", size=64, color=color)
         with Image(filename=name) as i:
-            i.caption(text=quote, font=font, gravity="south")
+            if "second" in quote:
+                top = quote["first"]
+                bottom = quote["second"]
+                i.caption(text=top, font=font, gravity="north")
+                i.caption(text=bottom, font=font, gravity="south")
+            else:
+                i.caption(text=quote["first"], font=font, gravity="north")
             i.save(filename=name)
 
     def delete_image(self, name):
@@ -74,16 +96,34 @@ class Poster:
 
 if __name__=="__main__":
     api = connect()
-    for user in SOURCE_ACCOUNTS:
+    CONTINUE = True
+    IMAGE = True
+    CAPTION = True
+    QUOTE = True
+    TWEET = False
+    while CONTINUE:
         poster = Poster()
-        image_url = poster.get_image()
-        image_extension = "." + image_url.split(".")[len(image_url.split(".")) - 1]
-        image_name = str(time.time()).replace(".", "") + image_extension
-        # print image_url, image_extension, image_name
-        quote = poster.get_quote()
-        print quote
-        poster.save_image(image_url, image_name)
-        poster.crop_image(image_name)
-        poster.add_caption(image_name, quote)
-        delete = raw_input("Press Enter to Delete Image ")
-        poster.delete_image(image_name)
+        if IMAGE:
+            image_url = poster.get_image()
+            image_extension = "." + image_url.split(".")[len(image_url.split(".")) - 1]
+            image_name = str(time.time()).replace(".", "") + image_extension
+            if image_extension == ".gif":
+                print "Image was a gif. Trying again."
+                continue
+        if QUOTE:
+            quote = poster.get_quote()
+            quote = poster.filter_quote(quote)
+            if "second" in quote:
+                if len(quote["first"].split()) + len(quote["second"].split()) > 12:
+                    print "Quote was too long. Trying again."
+                    time.sleep(2)
+                    continue
+        if IMAGE:
+            poster.save_image(image_url, image_name)
+            poster.crop_image(image_name)
+        if IMAGE and CAPTION:
+            poster.add_caption(image_name, quote)
+        if IMAGE:
+            delete = raw_input("Press Enter to Delete Image ")
+            poster.delete_image(image_name)
+        CONTINUE = False
