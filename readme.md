@@ -1,4 +1,16 @@
-# Heroku_ebooks
+# Motivational Poster bot
+
+## Installation
+
+`brew install liblqr`
+`brew install freetype`
+`brew install imagemagick --with-liblqr`
+`pip install -r requirements.txt`
+`python poster.py`
+
+
+
+
 
 This is a basic Python port of [@harrisj's](https://twitter.com/harrisj) [iron_ebooks](https://github.com/harrisj/iron_ebooks/) Ruby script. Using Heroku's scheduler, you can post to an _ebooks Twitter account based on the corpus of an existing Twitter at pseudorandom intervals. Currently, it is the magic behind [@adriennelaf_ebx](http://www.twitter.com/adriennelaf_ebx) and [@stevebuttry_ebx](http://www.twitter.com/stevebuttry_ebx).
 
@@ -23,7 +35,7 @@ This is a basic Python port of [@harrisj's](https://twitter.com/harrisj) [iron_e
 
 ## Configuring
 
-There are several parameters that control the behavior of the bot. You can adjust them by setting them in your `local_settings.py` file. 
+There are several parameters that control the behavior of the bot. You can adjust them by setting them in your `local_settings.py` file.
 
 ```
 ODDS = 8
@@ -47,7 +59,7 @@ If you want to test the script or to debug the tweet generation, you can skip th
 First, adjust the `DEBUG` variable in `local_settings.py`.
 
 ```
-DEBUG = True 
+DEBUG = True
 ```
 
 After that, commit the change and `git push heroku master`. Then run the command `heroku run worker` on the command line and watch what happens.
