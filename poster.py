@@ -1,4 +1,3 @@
-import random
 import requests
 import json
 import twitter
@@ -10,7 +9,6 @@ from wand.image import Image
 from wand.font import Font
 from wand.color import Color
 from wand.drawing import Drawing
-import time
 
 
 def connect():
@@ -35,7 +33,6 @@ class Poster:
         resp = requests.get(url=url)
         data = json.loads(resp.content.replace("\\", "").replace('\r\n', ''))
         quote = data["quoteText"].strip()
-        print quote
         return quote
 
     def save_image(self, url, name):
@@ -73,10 +70,10 @@ class Poster:
         chunks = quote.split()
         quote_dict = {}
         if len(chunks) > 6:
-            quote_dict["first"] = " ".join(chunks[:(len(chunks) / 2)])
-            quote_dict["second"] = " ".join(chunks[(len(chunks) / 2):])
+            quote_dict["first"] = " ".join(chunks[:(len(chunks) / 2)]).upper()
+            quote_dict["second"] = " ".join(chunks[(len(chunks) / 2):]).upper()
         else:
-            quote_dict["first"] = quote
+            quote_dict["first"] = quote.upper()
         return quote_dict
 
     def add_caption(self, name, quote):
@@ -86,12 +83,12 @@ class Poster:
         font = Font(path="impact.ttf", size=64, color=color)
         with Image(filename=name) as i:
             if "second" in quote:
-                top = "\"" + quote["first"]
-                bottom = quote["second"] + "\" -Cat"
+                top = quote["first"]
+                bottom = quote["second"]
                 i.caption(text=top, font=font, gravity="north")
                 i.caption(text=bottom, font=font, gravity="south")
             else:
-                top = top = "\"" + quote["first"] + "\" -Cat"
+                top = top = quote["first"]
                 i.caption(text=top, font=font, gravity="north")
             i.save(filename=name)
 

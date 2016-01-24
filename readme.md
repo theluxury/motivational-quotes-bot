@@ -3,9 +3,13 @@
 ## Installation
 
 `brew install liblqr`
+
 `brew install freetype`
+
 `brew install imagemagick --with-liblqr`
+
 `pip install -r requirements.txt`
+
 `python poster.py`
 
 
